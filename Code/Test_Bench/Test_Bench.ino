@@ -1,17 +1,24 @@
 #include <HX711_ADC.h>
+#include <Servo.h>
 
 #define HX_DOUT 4
 #define HX_SCK 5
+#define Throttle_Pot A1
+#define ESC_OUT 9
 
 HX711_ADC LoadCell(HX_DOUT, HX_SCK);
 
 float Calibration_Factor = 0;
+float Thrust = 0;
+int Throttle = 0;
+
+
 float Calibration_Process();
 
 void setup() {
   Serial.begin(9600);
   Serial.println("---------------------------------------------Starting----------------------------------------------------------");
-  Serial.println("---------------------------------------Wait about 2 seconds-----------------------------------------------");
+  Serial.println("---------------------------------------Wait about 2 seconds----------------------------------------------------");
   LoadCell.begin();
   LoadCell.start(2000, true);
   Serial.print("Do you want to calibrate first? y | n : ");
@@ -30,10 +37,16 @@ void setup() {
       }
     }
   }
+  pinMode(Throttle_Pot, INPUT);
+  // pinMode(ESC_OUT,OUTPUT);
+  motor.attach(ESC_OUT, 1000, 2000);  // 1ms - 2ms pulse width out of 20ms cycle
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
+  if (LoadCell.update())
+    Serial.println(LoadCell.getData());
+  Throttle = map(analogRead(Throttle_Pot), 0, 1023, 1000, 2000);
+  motor.writeMicroseconds(Throttle);
 }
 
 float Calibration_Process() {
