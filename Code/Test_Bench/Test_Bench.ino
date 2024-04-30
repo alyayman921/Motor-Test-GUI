@@ -9,8 +9,8 @@ Initial configuration must be done while connecting to the arduino
 #define HX_SCK 5
 #define Throttle_Pot A1
 #define ESC_OUT 9
-#define Rx 10
-#define Tx 11
+#define Rx 2
+#define Tx 3
 #define IR 2
 
 HX711_ADC LoadCell(HX_DOUT, HX_SCK);
@@ -165,12 +165,15 @@ void Read_Serial() {
     while (true) {
       if (Serial.available()) {
         Throttle = Serial.parseInt();
+        Serial.print("==========================");Serial.println(Throttle);
         if (301 == Throttle) {
           choice = 'p';
           Saftey_measure();
+          break;
         } else if (302 == Throttle) {
           choice = 'b';
           Saftey_measure();
+          break;
         } else {
           Serial.print(Throttle);
           Serial.println('%');
@@ -194,9 +197,11 @@ void Read_Bluetoooth() {
         if (301 == Throttle) {
           choice = 'p';
           Saftey_measure();
+          break;
         } else if (302 == Throttle) {
           choice = 's';
           Saftey_measure();
+          break;
         } else {
           Bluetooth.print(Throttle);
           Bluetooth.println('%');
@@ -244,6 +249,7 @@ void Saftey_measure() {
   while (5 <= Throttle) {  //Saftey measure
     Serial.println("-------------------- Please, Set throttle to Zero----------------------");
     Throttle = map(analogRead(Throttle_Pot), 0, 1023, 0, 100);
+    Serial.println(Throttle);
   }
 }
 void RPM_Calculation() {
